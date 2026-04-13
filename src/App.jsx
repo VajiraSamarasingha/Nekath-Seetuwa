@@ -606,7 +606,7 @@ export default function App() {
               fontFamily: "'Abhaya Libre', serif",
             }}
           >
-            ඇතුළු වීමට ස්පර්ශ කරන්න
+            ඇතුළු වීමට ස්පර්ශ කරන්න 
           </p>
         </div>
       )}
