@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, CheckCircle, MapPin, Calendar, Heart, Sun, FileDown, Loader2, Sparkles } from 'lucide-react';
 import './App.css'
+
 const NAKATH_DATA = [
   {
     id: 1,
@@ -83,53 +84,77 @@ const NAKATH_DATA = [
   }
 ];
 const CountdownTimer = ({ targetDate, onFinish }) => {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const now = new Date().getTime();
+    const distance = new Date(targetDate).getTime() - now;
+    if (distance <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, finished: true };
+    return {
+      days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((distance % (1000 * 60)) / 1000),
+      finished: false,
+    };
+  });
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const tick = () => {
       const now = new Date().getTime();
       const distance = new Date(targetDate).getTime() - now;
-      if (distance < 0) {
-        setTimeLeft(prev => ({ ...prev, finished: true }));
+      if (distance <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: true });
         if (onFinish) onFinish();
-        clearInterval(timer);
-      } else {
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000),
-          finished: false
-        });
+        return;
       }
-    }, 1000);
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+        finished: false,
+      });
+    };
+
+    tick(); // run immediately
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, [targetDate, onFinish]);
 
   if (timeLeft.finished) return null;
 
   return (
-    <div style={{ display: 'flex', gap: '6px', marginTop: '14px' }}>
+    <div style={{ display: "flex", gap: "6px", marginTop: "14px" }}>
       {[
-        { label: 'Days', val: timeLeft.days },
-        { label: 'Hrs', val: timeLeft.hours },
-        { label: 'Min', val: timeLeft.minutes },
-        { label: 'Sec', val: timeLeft.seconds }
+        { label: "Days", val: timeLeft.days },
+        { label: "Hrs", val: timeLeft.hours },
+        { label: "Min", val: timeLeft.minutes },
+        { label: "Sec", val: timeLeft.seconds },
       ].map((item, i) => (
         <div key={i} style={{
-          background: 'rgba(255,255,255,0.15)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '10px',
-          padding: '6px 10px',
-          minWidth: '44px',
-          textAlign: 'center',
-          border: '1px solid rgba(255,255,255,0.2)',
-          flex: 1
+          background: "rgba(255,255,255,0.15)",
+          backdropFilter: "blur(10px)",
+          borderRadius: "10px",
+          padding: "6px 10px",
+          minWidth: "44px",
+          textAlign: "center",
+          border: "1px solid rgba(255,255,255,0.2)",
+          flex: 1,
         }}>
-          <div style={{ fontSize: '18px', fontWeight: '700', lineHeight: 1, fontFamily: "'DM Mono', monospace" }}>
-            {String(item.val).padStart(2, '0')}
+          <div style={{
+            fontSize: "18px",
+            fontWeight: "700",
+            lineHeight: 1,
+            fontFamily: "'DM Mono', monospace",
+          }}>
+            {String(item.val).padStart(2, "0")}
           </div>
-          <div style={{ fontSize: '9px', textTransform: 'uppercase', opacity: 0.7, letterSpacing: '0.05em', marginTop: '2px' }}>
+          <div style={{
+            fontSize: "9px",
+            textTransform: "uppercase",
+            opacity: 0.7,
+            letterSpacing: "0.05em",
+            marginTop: "2px",
+          }}>
             {item.label}
           </div>
         </div>
@@ -137,9 +162,8 @@ const CountdownTimer = ({ targetDate, onFinish }) => {
     </div>
   );
 };
-
 const NekathCard = ({ item, index }) => {
-  const [isFinished, setIsFinished] = useState(new Date() > new Date(item.time));
+  const [isFinished, setIsFinished] = useState(() => new Date() > new Date(item.time));
   const [hovered, setHovered] = useState(false);
   const timeStr = new Date(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   const dateStr = new Date(item.time).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
