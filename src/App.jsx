@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clock, CheckCircle, MapPin, Calendar, Heart, Sun, FileDown, Loader2, Sparkles } from 'lucide-react';
 import './App.css'
 
+
+
 const NAKATH_DATA = [
   {
     id: 1,
@@ -339,6 +341,9 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isGenerating, setIsGenerating] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [started, setStarted] = useState(false);
+  const audioRef = useRef(null);
+
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -350,6 +355,20 @@ export default function App() {
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    audioRef.current = new Audio('/song.mp3');
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0.5;
+  }, []);
+
+  // 👇 add this function here
+  const handleStart = () => {
+    audioRef.current.play();
+    setStarted(true);
+  };
+
+
 
   const downloadPDF = async () => {
     setIsGenerating(true);
@@ -409,6 +428,63 @@ export default function App() {
 
   return (
     <>
+
+    {!started && (
+      <div onClick={handleStart} style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #4a0000, #8B0000)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        fontFamily: "'DM Sans', sans-serif",
+        color: 'white',
+        textAlign: 'center',
+        padding: '24px',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+      }}>
+        <style>{`
+          @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.05);opacity:0.8} }
+          @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        `}</style>
+        <div style={{ fontSize: '80px', marginBottom: '24px', animation: 'pulse 2s ease infinite' }}>🌅</div>
+        <h1 style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 'clamp(36px, 8vw, 72px)',
+          fontWeight: '900',
+          background: 'linear-gradient(135deg, #ffffff, #fde68a)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          marginBottom: '12px',
+          animation: 'fadeIn 0.8s ease both',
+        }}>Nekath Portal</h1>
+        <p style={{
+          fontFamily: "'Abhaya Libre', serif",
+          fontSize: 'clamp(16px, 3vw, 22px)',
+          color: '#fde68a',
+          opacity: 0.9,
+          marginBottom: '48px',
+          animation: 'fadeIn 0.8s 0.2s ease both',
+        }}>සිංහල හා හින්දු අලුත් අවුරුදු නැකැත් සීට්ටුව</p>
+        <div style={{
+          background: 'rgba(255,255,255,0.15)',
+          border: '2px solid rgba(255,255,255,0.4)',
+          borderRadius: '50px',
+          padding: '16px 40px',
+          fontSize: '16px',
+          fontWeight: '700',
+          letterSpacing: '0.05em',
+          animation: 'pulse 1.5s ease infinite',
+          backdropFilter: 'blur(10px)',
+        }}>🎵 Tap to Enter & Play Music</div>
+        <p style={{ marginTop: '24px', fontSize: '12px', opacity: 0.4, fontFamily: "'Abhaya Libre', serif" }}>
+          ඇතුළු වීමට ස්පර්ශ කරන්න
+        </p>
+      </div>
+    )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=Abhaya+Libre:wght@400;700&display=swap');
 
